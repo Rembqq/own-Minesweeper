@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Game {
 
@@ -10,17 +11,18 @@ public class Game {
     public JButton[][] buttons;
     public JLabel textField;
     public int gridSize = 16; //16 means 16x16(256) cells are made
-    public static int width = 400 ;
-    public static int height = 400;
-    private static int bombCount = 40;
-    private static int flagCount = 0;
+    public static int width = 600 ;
+    public static int height = 600;
+    public static int initialBombCount = 40;
+    public static int userCurrentBombCount;
+    public static int realCurrentBombCount;
+    public static int flagCount = 0;
+    
 
     // cell attributes
-    public boolean isFLagged;
-    public boolean isBombed; // checks if a square contains bomb
-    public boolean isCleared;
+    Cell[][] cells = new Cell[gridSize][gridSize];
 
-    ArrayList<>
+    //ArrayList<>
 
 
 //    ArrayList<Integer> xPositions; // X bomb positions
@@ -33,6 +35,11 @@ public class Game {
 
         //create bomb field
         createBombField();
+
+        //calculate each cell neighbour mines
+        calculateBombsNearby();
+
+
     }
     private void createWindow()
     {
@@ -47,11 +54,66 @@ public class Game {
 
     private void createBombField()
     {
+        boolean containsBomb;
+        int bombsMarked = 0;
         for(int i = 0; i < gridSize; ++i)
         {
             for(int j = 0; j < gridSize; ++j)
             {
+                cells[i][j].isBombed = calculateBombChance(i, j, bombsMarked);
+                if(cells[i][j].isBombed) {bombsMarked++;}
+            }
+        }
+    }
 
+    private boolean calculateBombChance(int i, int j, int bombsMarked)
+    {
+        /*int chances;
+
+        chances = (int)(Math.random() * (gridSize * gridSize - i * j) - (initialBombCount - bombsMarked));
+        return chances <= 0;*/
+        return (Math.random() * (gridSize * gridSize - i * j) <= (initialBombCount - bombsMarked));
+    }
+
+    private void calculateBombsNearby()
+    {
+        int mines_near;
+        for(int i = 0; i < gridSize; ++i)
+        {
+            for(int j = 0; j < gridSize; ++j)
+            {
+                if(cells[i-1][j].isBombed && i != 0)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i-1][j-1].isBombed && i != 0 && j != 0)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i-1][j+1].isBombed && i != 0 && j != gridSize)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i+1][j-1].isBombed && i != gridSize && j != 0)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i+1][j].isBombed && i != gridSize)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i+1][j+1].isBombed && i != gridSize && j != gridSize)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i][j-1].isBombed && j != 0)
+                {
+                    cells[i][j].minesNearby++;
+                }
+                if(cells[i][j+1].isBombed && j != gridSize)
+                {
+                    cells[i][j].minesNearby++;
+                }
             }
         }
     }
